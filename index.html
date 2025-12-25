@@ -21,7 +21,6 @@
             display: flex; flex-direction: column;
         }
 
-        /* 封面區域 */
         #cover-page {
             position: fixed; inset: 0; z-index: 5000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -29,14 +28,12 @@
             transition: opacity 1s ease;
         }
 
-        /* 遊戲主體 - 適配動態高度 */
         #game-world { 
             display: flex; flex-direction: column; 
             width: 100vw; height: 100dvh; 
             visibility: hidden; opacity: 0; transition: 1s; 
         }
         
-        /* 故事文字區 */
         .story-header { 
             flex-shrink: 0; 
             padding: calc(15px + env(safe-area-inset-top)) 20px 10px; 
@@ -49,7 +46,6 @@
             font-size: 0.9rem; text-align: center; line-height: 1.4; 
         }
 
-        /* 角色舞台區 */
         .stage { 
             flex: 1; display: flex; justify-content: center; align-items: center; 
             gap: 160px; position: relative; overflow: visible;
@@ -63,7 +59,6 @@
             border-radius: 50%; opacity: 0; transform: scale(0); transition: 1.5s; z-index: 1; 
         }
 
-        /* 底部交互區 */
         .interaction-panel {
             flex-shrink: 0; background: white; border-radius: 35px 35px 0 0;
             padding: 20px 20px calc(50px + env(safe-area-inset-bottom)); 
@@ -82,7 +77,6 @@
         }
         .btn-opt:last-child { margin-bottom: 0; }
 
-        /* 結局頁面 */
         #final-screen { 
             position: fixed; inset: 0; z-index: 4000; background: var(--bg-dark); 
             display: none; flex-direction: column; align-items: center; 
@@ -139,7 +133,7 @@
     <div class="letter-container">
         <div class="letter-paper">
             亲爱的姐姐：<br><br>
-            圣诞节快乐。想跟你说：在我面前，你永远可以是妳自己，厌世的，抓狂的，可爱的。<br><br>
+            圣诞节快乐。想跟你说：在我面前，你永远可以是妳自己，厌世的，抓狂的，可愛的。<br><br>
             有烦恼很正常，但愿我俩都有多點發現快樂的好眼光。我会一直守着你，陪你在每个夜晚数星星。<br><br>
             希望你的快乐可以是因为我闯入了你的森林，成为你最好的陪伴。<br><br>
             圣诞真正的礼物，是有你有我，在一起。爱你乖乖~<br><br>
@@ -152,9 +146,9 @@
 
 <script>
     const steps = [
-        { s: "两天前的冷战让空气结了冰。狐狸尼克慢慢走近了...", d: "🐰：这几天我安静了点，因为我在沉淀。但我从没想过走開。", o: ["🦊：我不在乎你愛不愛我，我只認你這個搭檔。", "🦊：喔，那你沉淀得如何？", "🦊：你倒是走走看啊？"] },
+        { s: "两天前的冷战让空气结了冰。狐狸尼克慢慢走近了...", d: "🐰：这几天我安静了点，因为我在沉淀。但我从没想过走開。", o: ["🦊：我不在乎你爱不爱我，我只认你这个搭档。", "🦊：喔，那你沉淀得如何？", "🦊：你倒是走走看啊？"] },
         { s: "雪越下越大，小兔子茱蒂不安地绞着手指...", d: "🐰：我有时很怪、脾气很差，你真的不会怕吗？", o: ["🦊：我不怕怪怪的你，我只怕你受伤了却不告诉我。", "🦊：救命！每天都想帮你挂号。", "🦊：怕死了，你发脾气我跑去数星星。"] },
-        { s: "星光下，狐狸终于彻底靠近了兔子...", d: "🐰：所以...你真的会一直在吗？", o: ["🦊：不只是在，我会是你永远的避风港。圣诞快乐。"] }
+        { s: "星光下，狐狸终于彻底靠近了兔子...", d: "🐰：所以...你真的会一直在吗？", o: ["🦊：不只是在，我会是你永远的避港。圣诞快乐。"] }
     ];
 
     let current = 0;
@@ -163,7 +157,7 @@
 
     function start() {
         document.getElementById('cover-page').style.opacity = '0';
-        bgm.volume = 0.6; // 背景音樂起始音量
+        bgm.volume = 0.6; // 背景音樂起始音量（稍作下調更舒適）
         bgm.play().catch(()=>{});
         setTimeout(() => {
             document.getElementById('cover-page').style.display = 'none';
@@ -175,7 +169,6 @@
     function renderNext() {
         const info = steps[current];
         document.getElementById('story-display').innerText = info.s;
-        document.getElementById('dialogue-text').innerText = info.d; // 修正 ID
         document.getElementById('dialogue-display').innerText = info.d;
         const box = document.getElementById('option-box'); box.innerHTML = '';
         info.o.forEach((t, i) => {
@@ -222,13 +215,13 @@
 
     function playVoice() {
         if(vao.paused) { 
-            // 關鍵修改：將背景音量調到極低 (3%)，讓語音清晰
-            bgm.volume = 0.03; 
+            // 重要改動：語音播放時，背景音樂壓低到 0.02 (幾乎聽不見但有氛圍)
+            bgm.volume = 0.02; 
             vao.volume = 1.0; 
             vao.play(); 
             document.getElementById('v-btn').innerHTML = "⏸ 正在聆聽尼克..."; 
             vao.onended = () => { 
-                bgm.volume = 0.6; // 播放完後恢復背景音量
+                bgm.volume = 0.6; // 語音結束，背景音量恢復
                 document.getElementById('v-btn').innerHTML = "▶ 重新聽聽語音信"; 
             };
         } else { 
