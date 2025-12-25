@@ -6,19 +6,15 @@
     <title>圣诞森林的秘密信</title>
     <style>
         :root { 
-            --gold: #f6ad55; 
-            --gold-glow: rgba(246, 173, 85, 0.6);
-            --xmas-red: #c53030; 
-            --bg-dark: #0f172a;
-            --glass: rgba(255, 255, 255, 0.08);
+            --gold: #f6ad55; --gold-glow: rgba(246, 173, 85, 0.6);
+            --xmas-red: #c53030; --bg-dark: #0f172a; --glass: rgba(255, 255, 255, 0.08);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
             background: var(--bg-dark); color: white;
-            font-family: "PingFang SC", "Lantinghei SC", "Microsoft YaHei", sans-serif;
-            overflow: hidden;
-            display: flex; flex-direction: column;
+            font-family: "PingFang SC", sans-serif;
+            overflow: hidden; display: flex; flex-direction: column;
         }
 
         /* 封面 */
@@ -29,82 +25,48 @@
             transition: opacity 1s ease;
         }
 
-        /* 遊戲主體 - 使用 100dvh 適配 iPhone 14/16 的動態高度 */
+        /* 游戏主体 */
         #game-world { 
             display: flex; flex-direction: column; 
             width: 100vw; height: 100dvh; 
             visibility: hidden; opacity: 0; transition: 1s; 
         }
         
-        /* 故事文字區 - 避讓動態島 */
-        .story-header { 
-            flex-shrink: 0; 
-            padding: calc(15px + env(safe-area-inset-top)) 20px 10px; 
-            z-index: 5; 
-        }
+        .story-header { flex-shrink: 0; padding: calc(15px + env(safe-area-inset-top)) 20px 10px; z-index: 5; }
         .story-box { 
             background: var(--glass); backdrop-filter: blur(10px); 
             padding: 12px 15px; border-radius: 15px; 
             border: 1px solid rgba(255,255,255,0.1); 
-            font-size: 0.9rem; text-align: center; line-height: 1.4; 
+            font-size: 0.9rem; text-align: center; line-height: 1.4; min-height: 3em;
         }
 
-        /* 角色舞台區 - 彈性縮放 */
-        .stage { 
-            flex: 1; display: flex; justify-content: center; align-items: center; 
-            gap: 160px; position: relative; overflow: visible;
-        }
+        .stage { flex: 1; display: flex; justify-content: center; align-items: center; gap: 160px; position: relative; }
         .char { width: 26vw; max-width: 100px; transition: all 1.8s ease; z-index: 2; }
         .char img { width: 100%; height: auto; border-radius: 12px; }
+        .hug-glow { position: absolute; width: 150px; height: 150px; background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%); border-radius: 50%; opacity: 0; transform: scale(0); transition: 1.5s; z-index: 1; }
 
-        .hug-glow { 
-            position: absolute; width: 150px; height: 150px; 
-            background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%); 
-            border-radius: 50%; opacity: 0; transform: scale(0); transition: 1.5s; z-index: 1; 
-        }
-
-        /* 底部交互區 - iPhone 14/16 深度適配 */
         .interaction-panel {
             flex-shrink: 0; background: white; border-radius: 35px 35px 0 0;
-            /* 針對 iPhone 底部手勢區增加大量填充 */
             padding: 20px 20px calc(50px + env(safe-area-inset-bottom)); 
             color: #1e293b; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 10;
         }
-        .dialogue-text { 
-            font-size: 0.95rem; font-weight: 600; text-align: center; 
-            margin-bottom: 15px; color: #334155; min-height: 2.5em; 
-        }
+        .dialogue-text { font-size: 0.95rem; font-weight: 600; text-align: center; margin-bottom: 15px; color: #334155; min-height: 2.5em; }
         
-        /* 選項按鈕 - 壓縮間距確保排得下 */
         .btn-opt { 
             width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; 
-            padding: 12px 14px; /* 稍微縮小高度 */
-            border-radius: 14px; color: #475569; margin-bottom: 8px; 
-            cursor: pointer; text-align: center; font-size: 0.85rem; display: block; 
-            transition: background 0.2s;
+            padding: 12px 14px; border-radius: 14px; color: #475569; 
+            margin-bottom: 8px; cursor: pointer; text-align: center; font-size: 0.85rem; 
+            display: block; font-weight: 500;
         }
-        .btn-opt:last-child { margin-bottom: 0; } /* 最後一個按鈕去掉底部間距 */
 
-        /* 結局美化 */
         #final-screen { 
             position: fixed; inset: 0; z-index: 4000; background: var(--bg-dark); 
             display: none; flex-direction: column; align-items: center; 
             overflow-y: auto; padding: calc(20px + env(safe-area-inset-top)) 20px 60px; 
         }
-        .letter-container { 
-            width: 100%; max-width: 380px; background: #fffef2; 
-            padding: 30px 20px; border-radius: 5px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 8px double #e2e8f0; 
-            margin-bottom: 25px; 
-        }
+        .letter-container { width: 100%; max-width: 380px; background: #fffef2; padding: 30px 20px; border-radius: 5px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 8px double #e2e8f0; margin-bottom: 25px; }
         .letter-paper { color: #334155; line-height: 1.8; font-size: 0.95rem; }
-        
-        .voice-btn-luxe { 
-            background: linear-gradient(135deg, var(--gold), #d97706); 
-            border: none; padding: 16px; width: 100%; max-width: 380px; 
-            border-radius: 50px; color: white; font-weight: bold; font-size: 1rem; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; 
-        }
+        .voice-btn-luxe { background: linear-gradient(135deg, var(--gold), #d97706); border: none; padding: 18px; width: 100%; max-width: 380px; border-radius: 50px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
 
         .snow, .heart { position: fixed; pointer-events: none; z-index: 3000; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
@@ -124,11 +86,13 @@
 </div>
 
 <div id="game-world">
-    <div class="story-header"><div class="story-box" id="story-display">✨ 圣诞森林飘起了雪，尼克正在等你... ✨</div></div>
+    <div class="story-header">
+        <div class="story-box" id="story-display">✨ 圣诞森林飘起了雪，尼克正在等你... ✨</div>
+    </div>
     <div class="stage" id="stage">
         <div class="hug-glow" id="hug-glow"></div>
-        <div class="char" id="bunny"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453715624369848400/7db4a8924bf73a89a237186c46d2f1ee.png?ex=694e75ad&is=694d242d&hm=c0e63ec216c3b07a9d18a768e3fca9086aa596b00045d54b420508f6286aa26b" alt="🐰"></div>
-        <div class="char" id="fox"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453721279503929435/b94d5ba42fe7b6d44b40d34437ceee61.png?ex=694e7af1&is=694d2971&hm=d3506fcf311cd85a6bfe6861cec737d8fdac0f0eec5313fbf1bb8133b980821b" alt="🦊"></div>
+        <div class="char" id="bunny"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453715624369848400/7db4a8924bf73a89a237186c46d2f1ee.png?ex=694e75ad&is=694d242d&hm=c0e63ec216c3b07a9d18a768e3fca9086aa596b00045d54b420508f6286aa26b"></div>
+        <div class="char" id="fox"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453721279503929435/b94d5ba42fe7b6d44b40d34437ceee61.png?ex=694e7af1&is=694d2971&hm=d3506fcf311cd85a6bfe6861cec737d8fdac0f0eec5313fbf1bb8133b980821b"></div>
     </div>
     <div class="interaction-panel">
         <div class="dialogue-text" id="dialogue-display">点击下方，开启这场关于陪伴的冒险。</div>
@@ -143,19 +107,18 @@
         <div class="letter-paper">
             亲爱的姐姐：<br><br>
             圣诞节快乐。想跟你说：在我面前，你永远可以是妳自己，厌世的，抓狂的，可爱的。<br><br>
-            有烦恼很正常，但愿我俩都有多點發現快樂的好眼光。我会一直守着你，陪你在每个夜晚数星星。<br><br>
+            有烦恼很正常，但愿我俩都有多点发现快乐的好眼光。我会一直守着你，陪你在每个夜晚数星星。<br><br>
             希望你的快乐可以是因为我闯入了你的森林，成为你最好的陪伴。<br><br>
             圣诞真正的礼物，是有你有我，在一起。爱你乖乖~<br><br>
             <span style="float:right; font-weight:bold; color:var(--xmas-red);">圣诞快乐，我的小兔子 🦊</span>
         </div>
     </div>
     <button id="v-btn" class="voice-btn-luxe" onclick="playVoice()">▶ 听听尼克的语音信</button>
-    <button style="margin-top: 30px; background:none; border:none; color:#777; font-size: 0.8rem; text-decoration: underline; margin-bottom: 40px;" onclick="location.reload()">重新开启之旅</button>
 </div>
 
 <script>
     const steps = [
-        { s: "两天前的冷战让空气结了冰。狐狸尼克慢慢走近了...", d: "🐰：这几天我安静了点，因为我在沉淀。但我从没想过走開。", o: ["🦊：我不在乎你爱不爱我，我只认你这个搭档。", "🦊：喔，那你沉淀得如何？", "🦊：你倒是走走看啊？"] },
+        { s: "两天前的冷战让空气结了冰。狐狸尼克慢慢走近了...", d: "🐰：这几天我安静了点，因为我在沉淀。但我从没想过走开。", o: ["🦊：我不在乎你爱不爱我，我只认你这个搭档。", "🦊：喔，那你沉淀得如何？", "🦊：你倒是走走看啊？"] },
         { s: "雪越下越大，小兔子茱蒂不安地绞着手指...", d: "🐰：我有时很怪、脾气很差，你真的不会怕吗？", o: ["🦊：我不怕怪怪的你，我只怕你受伤了却不告诉我。", "🦊：救命！每天都想帮你挂号。", "🦊：怕死了，你发脾气我跑去数星星。"] },
         { s: "星光下，狐狸终于彻底靠近了兔子...", d: "🐰：所以...你真的会一直在吗？", o: ["🦊：不只是在，我会是你永远的避风港。圣诞快乐。"] }
     ];
@@ -166,8 +129,12 @@
 
     function start() {
         document.getElementById('cover-page').style.opacity = '0';
-        bgm.volume = 0.8; 
+        bgm.volume = 0.5;
         bgm.play().catch(()=>{});
+        
+        // 关键修正：进场时直接显示第一段剧情背景，但按钮保留为“进入森林”
+        document.getElementById('story-display').innerText = steps[0].s; 
+        
         setTimeout(() => {
             document.getElementById('cover-page').style.display = 'none';
             document.getElementById('game-world').style.visibility = 'visible';
@@ -176,21 +143,31 @@
     }
 
     function renderNext() {
+        // 核心修正：点第一次“进入森林”时，current 还是 0，此时直接渲染问题
         const info = steps[current];
         document.getElementById('story-display').innerText = info.s;
         document.getElementById('dialogue-display').innerText = info.d;
-        const box = document.getElementById('option-box'); box.innerHTML = '';
+        
+        const box = document.getElementById('option-box');
+        box.innerHTML = '';
+        
         info.o.forEach((t, i) => {
-            const b = document.createElement('button'); b.className = 'btn-opt'; b.innerText = t;
+            const b = document.createElement('button');
+            b.className = 'btn-opt';
+            b.innerText = t;
             b.onclick = () => {
                 if(i === 0) {
                     current++;
-                    if(current === steps.length) { performHug(); } 
-                    else { 
+                    if(current === steps.length) { 
+                        performHug(); 
+                    } else { 
                         document.getElementById('stage').style.gap = (160 - (current * 80)) + "px";
                         renderNext(); 
                     }
-                } else { b.innerText = "❌ 尼克才不这样说呢！"; setTimeout(() => b.innerText = t, 800); }
+                } else {
+                    b.innerText = "❌ 尼克才不这样说呢！";
+                    setTimeout(() => b.innerText = t, 800);
+                }
             };
             box.appendChild(b);
         });
@@ -224,10 +201,10 @@
 
     function playVoice() {
         if(vao.paused) { 
-            bgm.volume = 0.1; vao.volume = 1.0; vao.play(); 
-            document.getElementById('v-btn').innerHTML = "⏸ 正在聆聽尼克..."; 
-            vao.onended = () => { bgm.volume = 0.8; document.getElementById('v-btn').innerHTML = "▶ 重新聽聽語音信"; };
-        } else { vao.pause(); bgm.volume = 0.8; document.getElementById('v-btn').innerHTML = "▶ 聽聽尼克的語音信"; }
+            bgm.volume = 0.02; vao.volume = 1.0; vao.play();
+            document.getElementById('v-btn').innerHTML = "⏸ 正在聆听尼克..."; 
+            vao.onended = () => { bgm.volume = 0.5; document.getElementById('v-btn').innerHTML = "▶ 听听尼克的语音信"; };
+        } else { vao.pause(); bgm.volume = 0.5; document.getElementById('v-btn').innerHTML = "▶ 听听尼克的语音信"; }
     }
 
     setInterval(() => {
