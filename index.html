@@ -1,202 +1,248 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>聖誕森林的秘密信</title>
+    <title>圣诞森林的秘密信</title>
     <style>
         :root { 
             --gold: #f6ad55; 
             --gold-glow: rgba(246, 173, 85, 0.6);
+            --xmas-red: #c53030; 
             --bg-dark: #0f172a;
+            --glass: rgba(255, 255, 255, 0.08);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
             background: var(--bg-dark); color: white;
-            font-family: -apple-system, "PingFang SC", sans-serif;
-            overflow: hidden; display: flex; flex-direction: column;
+            font-family: "PingFang SC", "Lantinghei SC", "Microsoft YaHei", sans-serif;
+            overflow: hidden;
+            display: flex; flex-direction: column;
         }
 
         /* 封面 */
         #cover-page {
-            position: fixed; inset: 0; z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
+            position: fixed; inset: 0; z-index: 5000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-            transition: opacity 0.5s;
+            transition: opacity 1s ease;
         }
 
+        /* 游戏主体 */
         #game-world { 
             display: flex; flex-direction: column; 
             width: 100vw; height: 100dvh; 
-            visibility: hidden; opacity: 0; 
+            visibility: hidden; opacity: 0; transition: 1s; 
         }
         
-        .story-header { flex-shrink: 0; padding: calc(20px + env(safe-area-inset-top)) 20px 10px; }
+        /* 故事文字区 */
+        .story-header { 
+            flex-shrink: 0; 
+            padding: calc(15px + env(safe-area-inset-top)) 20px 10px; 
+            z-index: 5; 
+        }
         .story-box { 
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); 
-            padding: 15px; border-radius: 15px; text-align: center; font-size: 0.9rem; 
+            background: var(--glass); backdrop-filter: blur(10px); 
+            padding: 12px 15px; border-radius: 15px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            font-size: 0.9rem; text-align: center; line-height: 1.4; 
         }
 
-        .stage { flex: 1; display: flex; justify-content: center; align-items: center; gap: 160px; position: relative; }
-        .char { width: 26vw; max-width: 100px; transition: all 1s ease; }
-        .char img { width: 100%; height: auto; border-radius: 10px; }
+        /* 角色舞台区 */
+        .stage { 
+            flex: 1; display: flex; justify-content: center; align-items: center; 
+            gap: 160px; position: relative; overflow: visible;
+        }
+        .char { width: 26vw; max-width: 100px; transition: all 1.8s ease; z-index: 2; }
+        .char img { width: 100%; height: auto; border-radius: 12px; }
 
-        /* 底部控制區：提高 z-index 確保可點擊 */
+        .hug-glow { 
+            position: absolute; width: 150px; height: 150px; 
+            background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%); 
+            border-radius: 50%; opacity: 0; transform: scale(0); transition: 1.5s; z-index: 1; 
+        }
+
+        /* 底部交互区 */
         .interaction-panel {
-            position: relative; z-index: 100;
-            flex-shrink: 0; background: white; border-radius: 30px 30px 0 0;
-            padding: 25px 25px calc(60px + env(safe-area-inset-bottom)); 
-            color: #1e293b; box-shadow: 0 -10px 30px rgba(0,0,0,0.3);
+            flex-shrink: 0; background: white; border-radius: 35px 35px 0 0;
+            padding: 20px 20px calc(50px + env(safe-area-inset-bottom)); 
+            color: #1e293b; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 10;
         }
-        .dialogue-text { font-size: 1rem; font-weight: 600; text-align: center; margin-bottom: 20px; min-height: 3em; }
+        .dialogue-text { 
+            font-size: 0.95rem; font-weight: 600; text-align: center; 
+            margin-bottom: 15px; color: #334155; min-height: 2.5em; 
+        }
         
         .btn-opt { 
-            width: 100%; background: #f1f5f9; border: 1px solid #e2e8f0; 
-            padding: 16px; border-radius: 15px; color: #334155; 
-            margin-bottom: 10px; cursor: pointer; text-align: center; font-size: 1rem;
-            display: block; font-weight: bold;
+            width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; 
+            padding: 12px 14px; border-radius: 14px; color: #475569; 
+            margin-bottom: 8px; cursor: pointer; text-align: center; font-size: 0.85rem; 
+            display: block; 
         }
+        .btn-opt:last-child { margin-bottom: 0; }
 
+        /* 结局屏幕 */
         #final-screen { 
-            position: fixed; inset: 0; z-index: 9000; background: var(--bg-dark); 
+            position: fixed; inset: 0; z-index: 4000; background: var(--bg-dark); 
             display: none; flex-direction: column; align-items: center; 
-            overflow-y: auto; padding: calc(40px + env(safe-area-inset-top)) 20px 60px; 
+            overflow-y: auto; padding: calc(20px + env(safe-area-inset-top)) 20px 60px; 
         }
         .letter-container { 
-            width: 100%; max-width: 380px; background: #fffef2; padding: 25px; 
-            border-radius: 5px; border: 8px double #e2e8f0; color: #334155; line-height: 1.8;
+            width: 100%; max-width: 380px; background: #fffef2; 
+            padding: 30px 20px; border-radius: 5px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 8px double #e2e8f0; 
+            margin-bottom: 25px; 
+        }
+        .letter-paper { color: #334155; line-height: 1.8; font-size: 0.95rem; }
+        
+        .voice-btn-luxe { 
+            background: linear-gradient(135deg, var(--gold), #d97706); 
+            border: none; padding: 18px; width: 100%; max-width: 380px; 
+            border-radius: 50px; color: white; font-weight: bold; font-size: 1rem; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; 
         }
 
-        .snow { position: fixed; top: -10px; pointer-events: none; z-index: 50; animation: fall linear forwards; }
-        @keyframes fall { to { transform: translateY(110vh); } }
+        .snow, .heart { position: fixed; pointer-events: none; z-index: 3000; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<audio id="bg-music" loop><source src="download (1).mp3" type="audio/mpeg"></audio>
-<audio id="voice-audio"><source src="聖誕快樂.m4a" type="audio/mp4"></audio>
+<audio id="bg-music" loop preload="auto"><source src="download (1).mp3" type="audio/mpeg"></audio>
+<audio id="voice-audio" preload="auto"><source src="聖誕快樂.m4a" type="audio/mp4"></audio>
 
-<div id="cover-page" onclick="startGame()">
-    <div style="text-align: center; pointer-events: none;">
-        <h2 style="letter-spacing: 3px;">聖誕森林的秘密信</h2>
-        <p style="color: var(--gold); margin-bottom: 30px;">TO: 我的小兔子姐姐</p>
-        <div style="border: 1px solid var(--gold); padding: 10px 30px; border-radius: 50px; color: var(--gold);">點擊螢幕開啟</div>
+<div id="cover-page">
+    <div style="text-align: center; background: var(--glass); padding: 40px 30px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1);">
+        <h2 style="font-weight: 300; letter-spacing: 5px; margin: 0;">圣诞森林的秘密信</h2>
+        <p style="color: var(--gold); letter-spacing: 3px; font-size: 0.8rem; margin: 15px 0 30px;">TO: 我的小兔子姐姐</p>
+        <button style="background:none; border:1px solid var(--gold); color:var(--gold); padding:12px 35px; border-radius:50px; cursor:pointer;" onclick="start()">开启这份思念</button>
     </div>
 </div>
 
 <div id="game-world">
-    <div class="story-header"><div class="story-box" id="story-display">✨ 聖誕森林飄起了雪，尼克正在等你... ✨</div></div>
+    <div class="story-header"><div class="story-box" id="story-display">✨ 圣诞森林飘起了雪，尼克正在等你... ✨</div></div>
     <div class="stage" id="stage">
-        <div class="char" id="bunny"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453715624369848400/7db4a8924bf73a89a237186c46d2f1ee.png?ex=694e75ad&is=694d242d&hm=c0e63ec216c3b07a9d18a768e3fca9086aa596b00045d54b420508f6286aa26b"></div>
-        <div class="char" id="fox"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453721279503929435/b94d5ba42fe7b6d44b40d34437ceee61.png?ex=694e7af1&is=694d2971&hm=d3506fcf311cd85a6bfe6861cec737d8fdac0f0eec5313fbf1bb8133b980821b"></div>
+        <div class="hug-glow" id="hug-glow"></div>
+        <div class="char" id="bunny"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453715624369848400/7db4a8924bf73a89a237186c46d2f1ee.png?ex=694e75ad&is=694d242d&hm=c0e63ec216c3b07a9d18a768e3fca9086aa596b00045d54b420508f6286aa26b" alt="🐰"></div>
+        <div class="char" id="fox"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453721279503929435/b94d5ba42fe7b6d44b40d34437ceee61.png?ex=694e7af1&is=694d2971&hm=d3506fcf311cd85a6bfe6861cec737d8fdac0f0eec5313fbf1bb8133b980821b" alt="🦊"></div>
     </div>
     <div class="interaction-panel">
-        <div class="dialogue-text" id="dialogue-display">點擊下方，開啟這場關於陪伴的冒險。</div>
+        <div class="dialogue-text" id="dialogue-display">点击下方，开启这场关于陪伴的冒险。</div>
         <div id="option-box">
-            <button id="main-btn" class="btn-opt" style="background:var(--gold); color:white; border:none;" onclick="handleNext()">✨ 進入森林</button>
-            <button id="sub-btn" class="btn-opt" style="display:none;" onclick="handleWrong()">選項二</button>
+            <button class="btn-opt" style="background:var(--gold); color:white; border:none; font-weight:bold;" onclick="renderNext()">✨ 进入森林</button>
         </div>
     </div>
 </div>
 
 <div id="final-screen">
     <div class="letter-container">
-        親愛的姐姐：<br><br>
-        聖誕節快樂。想跟你說：在我面前，你永遠可以是妳自己，厭世的，抓狂的，可愛的。<br><br>
-        有煩惱很正常，但願我倆都有多點發現快樂的好眼光。我會一直守著你，陪你在每個夜晚數星星。<br><br>
-        希望你的快樂可以是因為我闖入了你的森林，成為你最好的陪伴。<br><br>
-        聖誕真正的禮物，是有你有我，在一起。愛你乖乖~<br><br>
-        <span style="float:right; font-weight:bold; color:#c53030;">聖誕快樂，我的小兔子 🦊</span>
+        <div class="letter-paper">
+            亲爱的姐姐：<br><br>
+            圣诞节快乐。想跟你说：在我面前，你永远可以是妳自己，厌世的，抓狂的，可爱的。<br><br>
+            有烦恼很正常，但愿我俩都有多点发现快乐的好眼光。我会一直守着你，陪你在每个夜晚数星星。<br><br>
+            希望你的快乐可以是因为我闯入了你的森林，成为你最好的陪伴。<br><br>
+            圣诞真正的礼物，是有你有我，在一起。爱你乖乖~<br><br>
+            <span style="float:right; font-weight:bold; color:var(--xmas-red);">圣诞快乐，我的小兔子 🦊</span>
+        </div>
     </div>
-    <button id="v-btn" class="btn-opt" style="margin-top:20px; background:linear-gradient(135deg, var(--gold), #d97706); color:white; border:none;" onclick="toggleVoice()">▶ 聽聽尼克的語音信</button>
+    <button id="v-btn" class="voice-btn-luxe" onclick="playVoice()">▶ 听听尼克的语音信</button>
+    <button style="margin-top: 30px; background:none; border:none; color:#777; font-size: 0.8rem; text-decoration: underline; margin-bottom: 40px;" onclick="location.reload()">重新开启之旅</button>
 </div>
 
 <script>
+    const steps = [
+        { s: "两天前的冷战让空气结了冰。狐狸尼克慢慢走近了...", d: "🐰：这几天我安静了点，因为我在沉淀。但我从没想过走开。", o: ["🦊：我不在乎你爱不爱我，我只认你这个搭档。", "🦊：喔，那你沉淀得如何？", "🦊：你倒是走走看啊？"] },
+        { s: "雪越下越大，小兔子茱蒂不安地绞着手指...", d: "🐰：我有时很怪、脾气很差，你真的不会怕吗？", o: ["🦊：我不怕怪怪的你，我只怕你受伤了却不告诉我。", "🦊：救命！每天都想帮你挂号。", "🦊：怕死了，你发脾气我跑去数星星。"] },
+        { s: "星光下，狐狸终于彻底靠近了兔子...", d: "🐰：所以...你真的会一直在吗？", o: ["🦊：不只是在，我会是你永远的避风港。圣诞快乐。"] }
+    ];
+
     let current = 0;
     const bgm = document.getElementById('bg-music');
     const vao = document.getElementById('voice-audio');
 
-    const scripts = [
-        { s: "兩天前的冷戰讓空氣結了冰。狐狸尼克慢慢走近了...", d: "🐰：這幾天我安靜了點，因為我在沉澱。但我從沒想過走開。", o1: "🦊：我不在乎你愛不愛我，我只認你這個搭檔。", o2: "🦊：你沉澱得如何？" },
-        { s: "雪越下越大，小兔子茱蒂不安地絞著手指...", d: "🐰：我有時很怪、脾氣很差，你真的不會怕嗎？", o1: "🦊：我不怕怪怪的你，我只怕你受傷了卻不告訴我。", o2: "🦊：每天都想幫你掛號。" },
-        { s: "星光下，狐狸終於徹底靠近了兔子...", d: "🐰：所以...你真的會一直在嗎？", o1: "🦊：不只是在，我會是你永遠的避風港。聖誕快樂。", o2: "" }
-    ];
-
-    function startGame() {
+    function start() {
         document.getElementById('cover-page').style.opacity = '0';
-        bgm.volume = 0.4;
-        bgm.play();
+        bgm.volume = 0.5; 
+        bgm.play().catch(()=>{});
         setTimeout(() => {
             document.getElementById('cover-page').style.display = 'none';
             document.getElementById('game-world').style.visibility = 'visible';
             document.getElementById('game-world').style.opacity = '1';
-        }, 500);
+        }, 800);
     }
 
-    function handleNext() {
-        if (current < scripts.length) {
-            const data = scripts[current];
-            document.getElementById('story-display').innerText = data.s;
-            document.getElementById('dialogue-display').innerText = data.d;
-            document.getElementById('main-btn').innerText = data.o1;
-            
-            if (data.o2) {
-                document.getElementById('sub-btn').style.display = 'block';
-                document.getElementById('sub-btn').innerText = data.o2;
-            } else {
-                document.getElementById('sub-btn').style.display = 'none';
-            }
-            
-            // 讓角色靠近
-            document.getElementById('stage').style.gap = (160 - (current * 80)) + "px";
-            current++;
-        } else {
-            // 結局動畫
-            document.getElementById('stage').style.gap = "0px";
-            document.getElementById('bunny').style.transform = "translateX(20px)";
-            document.getElementById('fox').style.transform = "translateX(-20px)";
-            setTimeout(() => {
-                document.getElementById('final-screen').style.display = 'flex';
-            }, 1000);
-        }
-    }
-
-    function handleWrong() {
-        const btn = document.getElementById('sub-btn');
-        const oldText = btn.innerText;
-        btn.innerText = "❌ 尼克才不這樣說呢！";
-        setTimeout(() => { btn.innerText = oldText; }, 800);
-    }
-
-    function toggleVoice() {
-        if (vao.paused) {
-            bgm.volume = 0.01; // 背景音降到最低
-            vao.volume = 1.0;
-            vao.play();
-            document.getElementById('v-btn').innerText = "⏸ 正在播放尼克的聲音...";
-            vao.onended = () => {
-                bgm.volume = 0.4;
-                document.getElementById('v-btn').innerText = "▶ 重新聽一次";
+    function renderNext() {
+        const info = steps[current];
+        document.getElementById('story-display').innerText = info.s;
+        document.getElementById('dialogue-display').innerText = info.d;
+        const box = document.getElementById('option-box'); box.innerHTML = '';
+        info.o.forEach((t, i) => {
+            const b = document.createElement('button'); b.className = 'btn-opt'; b.innerText = t;
+            b.onclick = () => {
+                if(i === 0) {
+                    current++;
+                    if(current === steps.length) { performHug(); } 
+                    else { 
+                        document.getElementById('stage').style.gap = (160 - (current * 80)) + "px";
+                        renderNext(); 
+                    }
+                } else { b.innerText = "❌ 尼克才不这样说呢！"; setTimeout(() => b.innerText = t, 800); }
             };
-        } else {
-            vao.pause();
-            bgm.volume = 0.4;
-            document.getElementById('v-btn').innerText = "▶ 聽聽尼克的語音信";
+            box.appendChild(b);
+        });
+    }
+
+    function performHug() {
+        const stage = document.getElementById('stage');
+        const bunny = document.getElementById('bunny');
+        const fox = document.getElementById('fox');
+        const glow = document.getElementById('hug-glow');
+        stage.style.gap = "0px";
+        bunny.style.transform = "translateX(30px)";
+        fox.style.transform = "translateX(-30px)";
+        setTimeout(() => {
+            glow.style.opacity = "1"; glow.style.transform = "scale(1.1)";
+            spawnHearts();
+            setTimeout(() => { document.getElementById('final-screen').style.display = 'flex'; }, 2200);
+        }, 800);
+    }
+
+    function spawnHearts() {
+        for(let i=0; i<30; i++) {
+            setTimeout(() => {
+                const h = document.createElement('div'); h.className = 'heart'; h.innerText = '❤️';
+                h.style.left = Math.random() * 100 + 'vw'; h.style.top = '-20px';
+                h.style.animation = `fall ${Math.random()*2+2}s linear forwards`;
+                document.body.appendChild(h);
+            }, i * 70);
         }
     }
 
-    // 雪花背景
+    function playVoice() {
+        if(vao.paused) { 
+            bgm.volume = 0.02; // 听语音时，背景音压到极低
+            vao.volume = 1.0; 
+            vao.play(); 
+            document.getElementById('v-btn').innerHTML = "⏸ 正在聆听尼克..."; 
+            vao.onended = () => { 
+                bgm.volume = 0.5; // 语音结束恢复背景音
+                document.getElementById('v-btn').innerHTML = "▶ 重新听听语音信"; 
+            };
+        } else { 
+            vao.pause(); 
+            bgm.volume = 0.5; 
+            document.getElementById('v-btn').innerHTML = "▶ 听听尼克的语音信"; 
+        }
+    }
+
     setInterval(() => {
-        const s = document.createElement('div');
-        s.className = 'snow';
-        s.innerText = '❄️';
-        s.style.left = Math.random() * 100 + 'vw';
-        s.style.fontSize = Math.random() * 10 + 10 + 'px';
-        s.style.animationDuration = Math.random() * 3 + 4 + 's';
+        const s = document.createElement('div'); s.className = 'snow'; s.innerText = '❄️';
+        s.style.left = Math.random() * 100 + 'vw'; s.style.top = '-20px';
+        s.style.animation = `fall ${Math.random()*3+4}s linear forwards`;
         document.body.appendChild(s);
         setTimeout(() => s.remove(), 5000);
-    }, 500);
+    }, 600);
 </script>
 </body>
 </html>
