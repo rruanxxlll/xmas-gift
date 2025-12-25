@@ -16,17 +16,22 @@
             font-family: "PingFang SC", sans-serif;
             overflow: hidden; display: flex; flex-direction: column;
         }
+
+        /* 封面 */
         #cover-page {
             position: fixed; inset: 0; z-index: 5000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
             transition: opacity 1s ease;
         }
+
+        /* 游戏主体 */
         #game-world { 
             display: flex; flex-direction: column; 
             width: 100vw; height: 100dvh; 
             visibility: hidden; opacity: 0; transition: 1s; 
         }
+        
         .story-header { flex-shrink: 0; padding: calc(15px + env(safe-area-inset-top)) 20px 10px; z-index: 5; }
         .story-box { 
             background: var(--glass); backdrop-filter: blur(10px); 
@@ -34,22 +39,26 @@
             border: 1px solid rgba(255,255,255,0.1); 
             font-size: 0.9rem; text-align: center; line-height: 1.4; min-height: 3em;
         }
+
         .stage { flex: 1; display: flex; justify-content: center; align-items: center; gap: 160px; position: relative; }
         .char { width: 26vw; max-width: 100px; transition: all 1.8s ease; z-index: 2; }
         .char img { width: 100%; height: auto; border-radius: 12px; }
         .hug-glow { position: absolute; width: 150px; height: 150px; background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%); border-radius: 50%; opacity: 0; transform: scale(0); transition: 1.5s; z-index: 1; }
+
         .interaction-panel {
             flex-shrink: 0; background: white; border-radius: 35px 35px 0 0;
             padding: 20px 20px calc(50px + env(safe-area-inset-bottom)); 
             color: #1e293b; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); z-index: 10;
         }
         .dialogue-text { font-size: 0.95rem; font-weight: 600; text-align: center; margin-bottom: 15px; color: #334155; min-height: 2.5em; }
+        
         .btn-opt { 
             width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; 
             padding: 12px 14px; border-radius: 14px; color: #475569; 
             margin-bottom: 8px; cursor: pointer; text-align: center; font-size: 0.85rem; 
             display: block; font-weight: 500;
         }
+
         #final-screen { 
             position: fixed; inset: 0; z-index: 4000; background: var(--bg-dark); 
             display: none; flex-direction: column; align-items: center; 
@@ -58,6 +67,7 @@
         .letter-container { width: 100%; max-width: 380px; background: #fffef2; padding: 30px 20px; border-radius: 5px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 8px double #e2e8f0; margin-bottom: 25px; }
         .letter-paper { color: #334155; line-height: 1.8; font-size: 0.95rem; }
         .voice-btn-luxe { background: linear-gradient(135deg, var(--gold), #d97706); border: none; padding: 18px; width: 100%; max-width: 380px; border-radius: 50px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+
         .snow, .heart { position: fixed; pointer-events: none; z-index: 3000; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
     </style>
@@ -76,7 +86,9 @@
 </div>
 
 <div id="game-world">
-    <div class="story-header"><div class="story-box" id="story-display">✨ 圣诞森林飘起了雪，尼克正在等你... ✨</div></div>
+    <div class="story-header">
+        <div class="story-box" id="story-display">✨ 圣诞森林飘起了雪，尼克正在等待小兔子... ✨</div>
+    </div>
     <div class="stage" id="stage">
         <div class="hug-glow" id="hug-glow"></div>
         <div class="char" id="bunny"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453715624369848400/7db4a8924bf73a89a237186c46d2f1ee.png?ex=694e75ad&is=694d242d&hm=c0e63ec216c3b07a9d18a768e3fca9086aa596b00045d54b420508f6286aa26b"></div>
@@ -85,7 +97,7 @@
     <div class="interaction-panel">
         <div class="dialogue-text" id="dialogue-display">点击下方，开启这场关于陪伴的冒险。</div>
         <div id="option-box">
-            <button class="btn-opt" style="background:var(--gold); color:white; border:none; font-weight:bold;" onclick="renderNext()">✨ 进入森林</button>
+            <button class="btn-opt" style="background:var(--gold); color:white; border:none; font-weight:bold;" onclick="renderNext()">✨ 进入圣诞森林</button>
         </div>
     </div>
 </div>
@@ -106,9 +118,9 @@
 
 <script>
     const steps = [
-        { s: "两天前的冷战让空气结了冰。狐狸尼克慢慢走近了...", d: "🐰：这几天我安静了点，因为我在沉淀。但我从没想过走开。", o: ["🦊：我不在乎你爱不爱我，我只认你这个搭档。", "🦊：喔，那你沉淀得如何？", "🦊：你倒是走走看啊？"] },
-        { s: "雪越下越大，小兔子茱蒂不安地绞着手指...", d: "🐰：我有时很怪、脾气很差，你真的不会怕吗？", o: ["🦊：我不怕怪怪的你，我只怕你受伤了却不告诉我。", "🦊：救命！每天都想帮你挂号。", "🦊：怕死了，你发脾气我跑去数星星。"] },
-        { s: "星光下，狐狸终于彻底靠近了兔子...", d: "🐰：所以...你真的会一直在吗？", o: ["🦊：不只是在，我会是你永远的避風港。圣诞快乐。"] }
+        { s: "两天前的冷战让空气结了冰。狐狸尼克慢慢走近了...", d: "🐰：这几天我安静了点，因为我在沉淀。但我从没想过走开。", o: ["🦊：我知道妳需要自己的独处，我只认你这个搭档。", "🦊：好会沉淀，那你沉淀得如何？", "🦊：哼!你倒是走走看啊？"] },
+        { s: "雪越下越大，小兔子茱蒂不安地绞着手指...", d: "🐰：我有时很怪、脾气很差，你真的不会怕吗？", o: ["🦊：我不怕怪怪的你，我只怕你受伤了却不告诉我。", "🦊：救命！每天都想帮你挂号。", "🦊：怕死了，你发脾气我跑去看天数星星。"] },
+        { s: "星光下，狐狸终于彻底靠近了兔子...", d: "🐰：所以...你真的会一直在吗？", o: ["🦊：不只是在，我会是你永远的避风港。乖乖。"] }
     ];
 
     let current = 0;
@@ -119,7 +131,9 @@
         document.getElementById('cover-page').style.opacity = '0';
         bgm.volume = 0.5;
         bgm.play().catch(()=>{});
+        
         document.getElementById('story-display').innerText = steps[0].s; 
+        
         setTimeout(() => {
             document.getElementById('cover-page').style.display = 'none';
             document.getElementById('game-world').style.visibility = 'visible';
@@ -131,8 +145,10 @@
         const info = steps[current];
         document.getElementById('story-display').innerText = info.s;
         document.getElementById('dialogue-display').innerText = info.d;
+        
         const box = document.getElementById('option-box');
         box.innerHTML = '';
+        
         info.o.forEach((t, i) => {
             const b = document.createElement('button');
             b.className = 'btn-opt';
@@ -140,8 +156,9 @@
             b.onclick = () => {
                 if(i === 0) {
                     current++;
-                    if(current === steps.length) { performHug(); } 
-                    else { 
+                    if(current === steps.length) { 
+                        performHug(); 
+                    } else { 
                         document.getElementById('stage').style.gap = (160 - (current * 80)) + "px";
                         renderNext(); 
                     }
@@ -180,19 +197,22 @@
         }
     }
 
+    // 这里是按照你的要求修改的部分：暂停BGM以保证语音清晰
     function playVoice() {
         if(vao.paused) { 
-            // 手機端兼容優化：直接暫停BGM
-            bgm.pause(); 
-            vao.play(); 
+            bgm.pause(); // 播放语音时直接暂停背景BGM
+            vao.volume = 1.0; 
+            vao.play();
             document.getElementById('v-btn').innerHTML = "⏸ 正在聆听尼克..."; 
+            
+            // 语音播放自然结束时
             vao.onended = () => { 
-                bgm.play().catch(()=>{}); 
+                bgm.play().catch(()=>{}); // 恢复BGM播放
                 document.getElementById('v-btn').innerHTML = "▶ 听听尼克的语音信"; 
             };
         } else { 
             vao.pause(); 
-            bgm.play().catch(()=>{});
+            bgm.play().catch(()=>{}); // 手动暂停语音时恢复BGM
             document.getElementById('v-btn').innerHTML = "▶ 听听尼克的语音信"; 
         }
     }
