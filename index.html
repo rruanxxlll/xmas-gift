@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>圣诞森林的秘密信</title>
+    <style>
+        :root { 
+            --gold: #f6ad55; 
+            --gold-glow: rgba(246, 173, 85, 0.4);
+            --xmas-red: #c53030; 
+            --bg-dark: #0f172a;
+            --glass: rgba(255, 255, 255, 0.08);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: var(--bg-dark); color: white;
+            font-family: "PingFang SC", "Lantinghei SC", "Microsoft YaHei", sans-serif;
+            overflow: hidden;
+        }
+
+        /* 艺术封面 */
+        #cover-page {
+            position: fixed; inset: 0; z-index: 5000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            /* 渐变艺术背景 */
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            transition: opacity 1s ease;
+        }
+
+        .art-card {
+            position: relative; padding: 50px 30px; border-radius: 40px;
+            background: var(--glass); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.15);
+            text-align: center; width: 85%; max-width: 400px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            /* 金色流光动画 */
+            animation: glowPulse 4s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            from { box-shadow: 0 0 20px rgba(246, 173, 85, 0.1); }
+            to { box-shadow: 0 0 40px rgba(246, 173, 85, 0.3); }
+        }
+
+        .art-title {
+            font-size: 1.8rem; letter-spacing: 6px; margin: 0;
+            background: linear-gradient(to bottom, #fff, #f6ad55);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 300;
+        }
+
+        .art-subtitle {
+            font-size: 0.85rem; letter-spacing: 4px; color: var(--gold);
+            margin-top: 15px; opacity: 0.8;
+        }
+
+        .start-btn {
+            margin-top: 40px; padding: 15px 40px;
+            background: none; border: 1px solid var(--gold);
+            border-radius: 50px; color: var(--gold); font-size: 1rem;
+            cursor: pointer; transition: 0.3s; letter-spacing: 2px;
+        }
+        .start-btn:active { background: var(--gold); color: white; }
+
+        /* 游戏界面 */
+        #game-world { display: flex; flex-direction: column; width: 100vw; height: 100vh; visibility: hidden; opacity: 0; transition: 1s; }
+        .story-header { flex-shrink: 0; padding: 50px 20px 10px; }
+        .story-box { background: var(--glass); backdrop-filter: blur(10px); padding: 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem; text-align: center; }
+        .stage { flex: 1; display: flex; justify-content: center; align-items: center; gap: 160px; transition: gap 1.2s ease-in-out; }
+        .char { width: 30vw; max-width: 130px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
+        .char img { width: 100%; height: auto; border-radius: 12px; }
+
+        .interaction-panel {
+            flex-shrink: 0; background: white; border-radius: 40px 40px 0 0;
+            padding: 30px 25px calc(30px + env(safe-area-inset-bottom));
+            color: #1e293b; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        }
+        .dialogue-text { font-size: 1.05rem; font-weight: 600; text-align: center; margin-bottom: 25px; color: #334155; }
+        .btn-opt { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 18px; color: #475569; margin-bottom: 12px; cursor: pointer; text-align: center; }
+
+        /* 结局滚动页 */
+        #final-screen { position: fixed; inset: 0; z-index: 4000; background: var(--bg-dark); display: none; flex-direction: column; align-items: center; overflow-y: auto; padding: 40px 20px; }
+        .letter-paper { background: #fff; color: #334155; padding: 35px 25px; border-radius: 25px; width: 100%; max-width: 380px; line-height: 2; font-size: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.5); margin-bottom: 30px; }
+        
+        .snow, .heart, .star { position: fixed; pointer-events: none; z-index: 3000; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<audio id="bg-music" loop preload="auto"><source src="download (1).mp3" type="audio/mpeg"></audio>
+<audio id="voice-audio" preload="auto"><source src="聖誕快樂.m4a" type="audio/mp4"></audio>
+
+<div id="cover-page">
+    <div class="art-card">
+        <div style="font-size: 30px; margin-bottom: 20px; filter: drop-shadow(0 0 10px var(--gold));">✨</div>
+        <h2 class="art-title">圣诞森林的秘密信</h2>
+        <p class="art-subtitle">TO: 我的小兔子姐姐</p>
+        <button class="start-btn" onclick="start()">开启这份思念</button>
+        <div style="margin-top: 25px; font-size: 0.7rem; opacity: 0.4; letter-spacing: 2px;">CHRISTMAS 2025.12.25</div>
+    </div>
+</div>
+
+<div id="game-world">
+    <div class="story-header"><div class="story-box" id="story-display">✨ 圣诞森林飘起了雪，尼克正等待他的小兔子... ✨</div></div>
+    <div class="stage" id="stage">
+        <div class="char"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453715624369848400/7db4a8924bf73a89a237186c46d2f1ee.png?ex=694e75ad&is=694d242d&hm=c0e63ec216c3b07a9d18a768e3fca9086aa596b00045d54b420508f6286aa26b" alt="🐰"></div>
+        <div class="char"><img src="https://cdn.discordapp.com/attachments/1453714765838024887/1453721279503929435/b94d5ba42fe7b6d44b40d34437ceee61.png?ex=694e7af1&is=694d2971&hm=d3506fcf311cd85a6bfe6861cec737d8fdac0f0eec5313fbf1bb8133b980821b" alt="🦊"></div>
+    </div>
+    <div class="interaction-panel">
+        <div class="dialogue-text" id="dialogue-display">点击下方，开启这场关于陪伴的冒险。</div>
+        <div id="option-box">
+            <button class="btn-opt" style="background:var(--gold); color:white; border:none; font-weight:bold;" onclick="renderNext()">✨ 进入森林</button>
+        </div>
+    </div>
+</div>
+
+<div id="final-screen">
+    <div class="letter-paper">
+        亲爱的姐姐：<br><br>
+        圣诞节快乐。想跟你说：在我面前，你永远可以是妳自己，厌世的，抓狂的，可爱的。<br><br>
+        有烦恼很正常，但愿我俩都有多点发现快乐的好眼光。我会一直守着你，陪你在每个夜晚数星星。<br><br>
+        希望你的快乐可以是因为我闯入了你的森林，成为你最好的陪伴。<br><br>
+        圣诞真正的礼物，是有你有我，在一起。爱你乖乖~<br><br>
+        <span style="float:right; font-weight:bold;">圣诞快乐，我的小兔子 🦊</span>
+    </div>
+    <button id="v-btn" style="background:var(--gold); border:none; padding:18px; width:100%; max-width:380px; border-radius:50px; color:white; font-weight:bold; cursor:pointer; box-shadow: 0 5px 15px var(--gold-glow);" onclick="playVoice()">▶ 听听尼克的语音信</button>
+    <button style="margin-top: 30px; background:none; border:1px solid #555; color:#777; padding:10px 25px; border-radius:20px; font-size: 0.8rem;" onclick="location.reload()">重新开启之旅</button>
+</div>
+
+<script>
+    const steps = [
+        { s: "两天前的冷战让空气结了冰。狐狸尼克慢慢走近了...", d: "🐰：这几天我安静了点，因为我在沉淀。但我从没想过走开。", o: ["🦊：我不在乎你爱不爱我，我只认你这个搭档。", "🦊：喔，那你沉淀得如何？", "🦊：你倒是走走看啊？"] },
+        { s: "雪越下越大，小兔子茱蒂不安地绞着手指...", d: "🐰：我有时很怪、脾气很差，你真的不会怕吗？", o: ["🦊：我不怕怪怪的你，我只怕你受伤了却不告诉我。", "🦊：救命！每天都想帮你挂号。", "🦊：怕死了，你发脾气我跑去数星星。"] },
+        { s: "星光下，狐狸终于彻底靠近了兔子...", d: "🐰：所以...你真的会一直在吗？", o: ["🦊：不只是在，我会是你永远的避风港。圣诞快乐。"] }
+    ];
+
+    let current = 0;
+    const bgm = document.getElementById('bg-music');
+    const vao = document.getElementById('voice-audio');
+
+    function start() {
+        document.getElementById('cover-page').style.opacity = '0';
+        bgm.play().catch(()=>{});
+        setTimeout(() => {
+            document.getElementById('cover-page').style.display = 'none';
+            document.getElementById('game-world').style.visibility = 'visible';
+            document.getElementById('game-world').style.opacity = '1';
+        }, 1000);
+    }
+
+    function renderNext() {
+        const info = steps[current];
+        document.getElementById('story-display').innerText = info.s;
+        document.getElementById('dialogue-display').innerText = info.d;
+        const box = document.getElementById('option-box'); box.innerHTML = '';
+        info.o.forEach((t, i) => {
+            const b = document.createElement('button'); b.className = 'btn-opt'; b.innerText = t;
+            b.onclick = () => {
+                if(i === 0) {
+                    current++;
+                    document.getElementById('stage').style.gap = (160 - (current * 80)) + "px";
+                    if(current === steps.length) { spawnHearts(); setTimeout(() => { document.getElementById('final-screen').style.display = 'flex'; }, 2200); }
+                    else { renderNext(); }
+                } else { b.innerText = "❌ 尼克才不这样说呢！"; setTimeout(() => b.innerText = t, 800); }
+            };
+            box.appendChild(b);
+        });
+    }
+
+    function spawnHearts() {
+        for(let i=0; i<40; i++) {
+            setTimeout(() => {
+                const h = document.createElement('div'); h.className = 'heart'; h.innerText = '❤️';
+                h.style.left = Math.random() * 100 + 'vw'; h.style.top = '-20px';
+                h.style.animation = `fall ${Math.random()*2+2}s linear forwards`;
+                document.body.appendChild(h);
+            }, i * 60);
+        }
+    }
+
+    function playVoice() {
+        if(vao.paused) { vao.play(); bgm.volume = 0.2; document.getElementById('v-btn').innerText = "⏸ 暂停播放"; }
+        else { vao.pause(); bgm.volume = 1.0; document.getElementById('v-btn').innerText = "▶ 听听尼克的语音信"; }
+    }
+
+    // 星空背景逻辑
+    for(let i=0; i<30; i++) {
+        const s = document.createElement('div'); s.className = 'star'; s.innerText = '·';
+        s.style.left = Math.random()*100+'vw'; s.style.top = Math.random()*100+'vh';
+        s.style.color = '#fff'; s.style.animation = `twinkle ${Math.random()*3+2}s infinite`;
+        document.body.appendChild(s);
+    }
+
+    setInterval(() => {
+        const s = document.createElement('div'); s.className = 'snow'; s.innerText = '❄️';
+        s.style.left = Math.random() * 100 + 'vw'; s.style.top = '-20px';
+        s.style.opacity = Math.random(); s.style.animation = `fall ${Math.random()*3+4}s linear forwards`;
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 5000);
+    }, 450);
+</script>
+</body>
+</html>
