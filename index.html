@@ -8,6 +8,7 @@
         :root { 
             --gold: #f6ad55; --gold-glow: rgba(246, 173, 85, 0.6);
             --xmas-red: #c53030; --bg-dark: #0f172a; --glass: rgba(255, 255, 255, 0.08);
+            --success: #48bb78; --error: #cbd5e0;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { 
@@ -56,8 +57,11 @@
             width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; 
             padding: 12px 14px; border-radius: 14px; color: #475569; 
             margin-bottom: 8px; cursor: pointer; text-align: center; font-size: 0.85rem; 
-            display: block; font-weight: 500;
+            display: block; font-weight: 500; transition: all 0.3s;
         }
+        /* 按鈕點擊變色 */
+        .btn-correct { background-color: var(--success) !important; color: white !important; border-color: var(--success) !important; }
+        .btn-wrong { background-color: var(--error) !important; color: #718096 !important; border-color: var(--error) !important; }
 
         #final-screen { 
             position: fixed; inset: 0; z-index: 4000; background: var(--bg-dark); 
@@ -71,7 +75,6 @@
         .snow, .heart { position: fixed; pointer-events: none; z-index: 3000; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        /* 新增音樂盒動畫 */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -129,8 +132,8 @@
         <p id="nick-hint" style="color:var(--gold); font-size:0.9rem; margin-bottom:15px; font-weight: bold; transition: 0.5s;">🦊：咳... 其实还有两首加码，妳想听哪首？</p>
         
         <div style="display:flex; gap:12px; padding: 0 10px;">
-            <button class="btn-opt" style="background:#4a5568; color:white; border:none; flex:1;" onclick="playSpecial('far')">🌌 多远都要在一起</button>
-            <button class="btn-opt" style="background:#ed64a6; color:white; border:none; flex:1;" onclick="playSpecial('sweet')">🎀 心愿便利贴</button>
+            <button id="btn-far" class="btn-opt" style="background:#4a5568; color:white; border:none; flex:1;" onclick="playSpecial('far')">🌌 多远都要在一起</button>
+            <button id="btn-sweet" class="btn-opt" style="background:#ed64a6; color:white; border:none; flex:1;" onclick="playSpecial('sweet')">🎀 心愿便利贴</button>
         </div>
         <p id="song-status" style="color:white; font-size:0.8rem; margin-top:12px; opacity: 0.8;"></p>
     </div>
@@ -174,15 +177,22 @@
             b.innerText = t;
             b.onclick = () => {
                 if(i === 0) {
-                    current++;
-                    if(current === steps.length) performHug();
-                    else {
-                        document.getElementById('stage').style.gap = (160 - (current * 80)) + "px";
-                        renderNext();
-                    }
+                    b.classList.add('btn-correct'); // 點對變綠
+                    setTimeout(() => {
+                        current++;
+                        if(current === steps.length) performHug();
+                        else {
+                            document.getElementById('stage').style.gap = (160 - (current * 80)) + "px";
+                            renderNext();
+                        }
+                    }, 400);
                 } else {
+                    b.classList.add('btn-wrong'); // 點錯變灰
                     b.innerText = "❌ 尼克才不这样说呢！";
-                    setTimeout(() => b.innerText = t, 800);
+                    setTimeout(() => {
+                        b.classList.remove('btn-wrong');
+                        b.innerText = t;
+                    }, 800);
                 }
             };
             box.appendChild(b);
@@ -190,32 +200,29 @@
     }
 
     function performHug() {
-        const stage = document.getElementById('stage');
-        const bunny = document.getElementById('bunny');
-        const fox = document.getElementById('fox');
-        const glow = document.getElementById('hug-glow');
-        stage.style.gap = "0px";
-        bunny.style.transform = "translateX(30px)";
-        fox.style.transform = "translateX(-30px)";
+        document.getElementById('stage').style.gap = "0px";
+        document.getElementById('bunny').style.transform = "translateX(30px)";
+        document.getElementById('fox').style.transform = "translateX(-30px)";
         setTimeout(() => {
-            glow.style.opacity = "1"; glow.style.transform = "scale(1.1)";
+            document.getElementById('hug-glow').style.opacity = "1";
+            document.getElementById('hug-glow').style.transform = "scale(1.1)";
             spawnHearts();
             setTimeout(() => { document.getElementById('final-screen').style.display = 'flex'; }, 2200);
         }, 800);
     }
 
-    // 原始語音讀信
+    // 播放語音：務必停止背景音樂
     function playVoice() {
-        if(currentSpecial) currentSpecial.pause(); 
+        if(currentSpecial) { currentSpecial.pause(); currentSpecial = null; }
+        
         if(vao.paused) { 
-            bgm.pause(); 
+            bgm.pause(); // 停止 BGM
             vao.volume = 1.0; 
             vao.play();
             document.getElementById('v-btn').innerHTML = "⏸ 正在聆听尼克..."; 
             vao.onended = () => { 
-                bgm.play().catch(()=>{}); 
+                bgm.play().catch(()=>{}); // 結束後恢復 BGM
                 document.getElementById('v-btn').innerHTML = "▶ 听听尼克的语音信"; 
-                document.getElementById('extra-songs').style.display = 'block';
             };
         } else { 
             vao.pause(); 
@@ -225,10 +232,10 @@
         document.getElementById('extra-songs').style.display = 'block';
     }
 
-    // 音樂盒加碼歌曲
+    // 播放加碼歌曲：務必停止背景音樂與語音
     function playSpecial(type) {
         vao.pause();
-        bgm.pause();
+        bgm.pause(); // 停止 BGM
         if(currentSpecial) currentSpecial.pause();
 
         const hintText = document.getElementById('nick-hint');
@@ -253,7 +260,7 @@
             hintText.innerText = "🦊：听完啦，还要听另一首吗？";
             hintText.style.color = "var(--gold)";
             statusText.innerText = "💖 这首歌，送给最特别的你。";
-            bgm.play().catch(()=>{});
+            bgm.play().catch(()=>{}); // 結束後恢復 BGM
         };
     }
 
